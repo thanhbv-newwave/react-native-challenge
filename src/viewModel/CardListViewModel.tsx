@@ -1,40 +1,34 @@
 //@ts-nocheck
 import React, { useEffect } from 'react';
 import { Share } from 'react-native';
-import { CardItem, CardListItem, CreateCard, CreateCardRespone } from '../network/apiResponses/card';
-import { createCard, deletedCard, duplicateCard, getCardData, shareCard } from '../network/controllers/cardController';
+import { useDispatch, useSelector } from 'react-redux';
+import { CardItem, CreateCardRespone } from '../network/apiResponses/card';
+import { createCard, deletedCard, duplicateCard, shareCard } from '../network/controllers/cardController';
 import { IApiResponse } from '../network/IApiResponse';
 import CartListScreen from '../screens/CardListScreen';
+import { getCardList, setCards } from '../store/card';
 
 const CardListViewModel = () => {
-    const [cardData, setCardData] = React.useState<CardItem[]>([]);
-    const [loading, setLoading] = React.useState(false);
+    const {cardList, isLoading} = useSelector(state => state.card)
+    const dispatch = useDispatch();
     useEffect(() => {
-      const getData = async () => {
-        setLoading(true);
-        const cardResult: IApiResponse<CardListItem> = await getCardData();
-        if (cardResult.isSuccess) {
-          const cardListResult: CardListItem = cardResult.data;
-          setCardData(cardListResult.cards);
-        }
-        setLoading(false);
-      };
-      getData();
+      dispatch(getCardList());
+      
     }, []);
 
     const _addFoodStyle = async () => {
         const cardResult: IApiResponse<CreateCardRespone> = await createCard();
         if (cardResult.isSuccess) {
           const card: CardItem = cardResult.data?.createCard;
-          setCardData([...cardData, card]);
+          dispatch(setCards([...cardList, card]));
         }
     };
 
     const _deleteFoodStyle = async (id: string) => {
         const cardResult: IApiResponse<CreateCardRespone> = await deletedCard(id);
         if (cardResult.isSuccess) {
-         const res = cardData.filter(x => x.id != id)
-          setCardData([...res]);
+         const res = cardList.filter(x => x.id != id)
+          dispatch(setCards([...res]));
         }
     };
 
@@ -42,7 +36,7 @@ const CardListViewModel = () => {
         const cardResult: IApiResponse<CreateCardRespone> = await duplicateCard(id);
         if (cardResult.isSuccess) {
           const card: CardItem = cardResult.data?.duplicateCard;
-          setCardData([...cardData, card]);
+          dispatch(setCards([...cardList, card]));
         }
     };
 
@@ -57,8 +51,8 @@ const CardListViewModel = () => {
     };
 
   return <CartListScreen 
-    cardData={cardData}
-    loading={loading}
+    cardData={cardList}
+    loading={isLoading}
     addFoodStyle={_addFoodStyle}
     deleteFoodStyle= {_deleteFoodStyle}
     duplicateFoodStyle={_duplicateFoodStyle}

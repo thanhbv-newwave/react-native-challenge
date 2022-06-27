@@ -1,14 +1,14 @@
 import React from 'react';
-import store from './src/store';
-import { Provider } from 'react-redux';
-import { StatusBar } from 'react-native';
-import CardListViewModel from './src/viewModel/CardListViewModel';
+import {Provider} from 'react-redux';
+import {StatusBar} from 'react-native';
+import {store} from './src/redux';
+import CartListScreen from './src/card/presenter/CardListScreen';
 
 const App = () => {
   return (
     <Provider store={store}>
-        <StatusBar barStyle={'light-content'} />
-        <CardListViewModel />
+      <StatusBar barStyle={'light-content'} />
+      <CartListScreen />
     </Provider>
   );
 };
